@@ -1,16 +1,3 @@
-/*
-  WiFi Modbus TCP Server LED
-
-  This sketch creates a Modbus TCP Server with a simulated coil.
-  The value of the simulated coil is set on the LED
-
-  Circuit:
-   - MKR1000 or MKR WiFi 1010 board
-
-  created 16 July 2018
-  by Sandeep Mistry
-*/
-
 #include <SPI.h>
 #include <WiFiNINA.h> // for MKR WiFi 1010
 // #include <WiFi101.h> // for MKR1000
@@ -21,7 +8,7 @@
 #include "arduino_secrets.h"
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
 char ssid[] = SECRET_SSID;        // your network SSID (name)
-char pass[] = SECRET_PASS;    // your network password (use for WPA, or use as key for WEP)
+char pass[] = SECRET_PASS;        // your network password (use for WPA, or use as key for WEP)
 int keyIndex = 0;                 // your network key Index number (needed only for WEP)
 
 const int ledPin = LED_BUILTIN;
@@ -35,11 +22,8 @@ ModbusTCPServer modbusTCPServer;
 void setup() {
   //Initialize serial and wait for port to open:
   Serial.begin(9600);
-  while (!Serial) {
-    ; // wait for serial port to connect. Needed for native USB port only
-  }
 
-  Serial.println("Modbus TCP Server LED");
+  Serial.println("Exemple Arduino Modbus TCP");
 
   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {
@@ -69,7 +53,6 @@ void setup() {
   digitalWrite(ledPin, LOW);
 
   // configure a single coil at address 0x00
-  //modbusTCPServer.configureCoils(0x00, 1);
   if (modbusTCPServer.configureHoldingRegisters(0x00, 2) == 0) {
     Serial.println("Error mo.1");
   }
@@ -90,35 +73,20 @@ void loop() {
       // poll for Modbus TCP requests, while client connected
       modbusTCPServer.poll();
 
-      // update the LED
-      updateLED();
-
-      static unsigned long timeRef = 0;
-      static unsigned int coompteur = 0;
-      if (millis() - timeRef > 1000) {
-        timeRef = millis();
-        coompteur++;
+      int temperature = analogRead(A0);
+      if (modbusTCPServer.holdingRegisterWrite(0, temperature) == 0) {
+        Serial.println("Erreur mo.2");
       }
 
-      if (modbusTCPServer.holdingRegisterWrite(1, coompteur) == 0) {
-        Serial.println("Error mo.2");
+      unsigned int etatRelais = modbusTCPServer.holdingRegisterRead(1);
+      if (etatRelais) {
+        digitalWrite(ledPin, HIGH);
+      } else {
+        digitalWrite(ledPin, LOW);
       }
     }
 
     Serial.println("client disconnected");
-  }
-}
-
-void updateLED() {
-  // read the current value of the coil
-  int coilValue = modbusTCPServer.holdingRegisterRead(0x00);
-
-  if (coilValue) {
-    // coil value set, turn LED on
-    digitalWrite(ledPin, HIGH);
-  } else {
-    // coild value clear, turn LED off
-    digitalWrite(ledPin, LOW);
   }
 }
 
