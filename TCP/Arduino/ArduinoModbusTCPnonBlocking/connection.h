@@ -1,11 +1,11 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
-enum {
+enum Connection_state {
   NO_WIFI,
   CONNECTING_CLIENT,
   NEW_CLIENT_CONNECTED,
   CLIENT_CONNECTED
-} Connection_state;
+};
 
 #endif

@@ -36,7 +36,7 @@ void setup() {
 void loop() {
   
   Connection_loop();
-  if (Connection_getStatus() == NEW_CLIENT_CONNECTED) {
+  if (Connection_getState() == NEW_CLIENT_CONNECTED) {
     WiFiClient client = Connection_getWiFiClient();
     modbusTCPServer.accept(client);
   }

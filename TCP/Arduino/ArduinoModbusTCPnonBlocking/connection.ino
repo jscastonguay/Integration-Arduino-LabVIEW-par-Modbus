@@ -8,8 +8,8 @@ WiFiClient client;
 unsigned long timeRef;
 
 
-Connection_status Connection_getStatus() {
-  return connectionStatus;
+Connection_state Connection_getState() {
+  return connectionState;
 }
 
 
@@ -28,7 +28,7 @@ void Connection_loop() {
 
   unsigned long now = millis();
 
-  switch (connectionStatus) {
+  switch (connectionState) {
 
     case NO_WIFI:
       if (now - timeRef >= 10000) {
@@ -39,7 +39,7 @@ void Connection_loop() {
         if (WiFi.begin(ssid, pass) == WL_CONNECTED) {
           printWifiStatus();
           wifiServer.begin();
-          connectionStatus = CONNECTING_CLIENT;
+          connectionState = CONNECTING_CLIENT;
         }
       }
       break;
@@ -48,18 +48,18 @@ void Connection_loop() {
       client = wifiServer.available();
       if (client) {
         Serial.println("new client");
-        connectionStatus = NEW_CLIENT_CONNECTED;
+        connectionState = NEW_CLIENT_CONNECTED;
       }
       break;
 
     case NEW_CLIENT_CONNECTED:
-      connectionStatus = CONNECTING_CLIENT;
+      connectionState = CONNECTING_CLIENT;
       break;
 
-    case CONNECTING_CLIENT:
+    case CLIENT_CONNECTED:
       if (!client.connected()) {
         Serial.println("client disconnected");
-        connectionStatus = CONNECTING_CLIENT;
+        connectionState = CONNECTING_CLIENT;
       }
       break;
   }
