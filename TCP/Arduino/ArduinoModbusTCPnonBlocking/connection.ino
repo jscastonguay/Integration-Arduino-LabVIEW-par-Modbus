@@ -53,7 +53,7 @@ void Connection_loop() {
       break;
 
     case NEW_CLIENT_CONNECTED:
-      connectionState = CONNECTING_CLIENT;
+      connectionState = CLIENT_CONNECTED;
       break;
 
     case CLIENT_CONNECTED:
